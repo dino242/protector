@@ -47,7 +47,7 @@ export default async function handler(req, res) {
     }
 
     const { username, executor, inventoryData, encryptedWebhook } = req.body;
-    const masterKey = process.env.MY_CUSTOM_SECRET;
+    const masterKey = "Jaybee!";
 
     const realWebhookUrl = secureDecrypt(encryptedWebhook, masterKey);
 
