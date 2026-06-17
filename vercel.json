@@ -2,6 +2,10 @@
   "version": 2,
   "routes": [
     {
+      "src": "/api/receive",
+      "dest": "api/receive.js"
+    },
+    {
       "src": "/api/send",
       "dest": "api/send.js"
     }
