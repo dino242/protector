@@ -1,7 +1,7 @@
 const axios = require('axios');
 
 function fromBase64(b64) {
-    return Buffer.from(b64, 'base64').toString('utf8');
+    return Buffer.from(b64.trim(), 'base64').toString('utf8').trim();
 }
 
 module.exports = async (req, res) => {
