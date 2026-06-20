@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAYZ HUB - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #8a2be2;
+            --secondary: #da70d6;
+            --accent: #5865f2;
+            --bg: #050508;
+            --card-bg: rgba(15, 15, 25, 0.7);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+        #matrix-canvas {
+            position: fixed; top:0; left:0; width:100%; height:100%; z-index:-1; opacity:0.2;
+        }
+        .container {
+            max-width: 1000px; margin:0 auto; position:relative; z-index:10; padding-bottom:100px;
+        }
+        .header {
+            display:flex; justify-content:space-between; align-items:center; margin-bottom:40px;
+            padding:20px 0; border-bottom:1px solid rgba(138,43,226,0.1);
+        }
+        .logo-container { display:flex; align-items:center; gap:12px; }
+        .logo-img { width:40px; height:40px; filter:drop-shadow(0 0 8px var(--primary)); }
+        .logo-text {
+            font-family:'Orbitron',sans-serif; font-size:1.8rem; font-weight:900; letter-spacing:4px;
+            background:linear-gradient(135deg,var(--primary),var(--secondary));
+            -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+        }
+        .card {
+            background:var(--card-bg); backdrop-filter:blur(20px); border-radius:24px;
+            padding:35px; margin-bottom:30px; border:1px solid rgba(138,43,226,0.1);
+            box-shadow:0 10px 40px rgba(0,0,0,0.5); display:none; animation:fadeIn 0.5s ease;
+        }
+        .card.active { display:block; }
+        @keyframes fadeIn { from {opacity:0; transform:translateY(10px);} to {opacity:1; transform:translateY(0);} }
+
+        .section-title {
+            font-family:'Orbitron',sans-serif; font-size:1.2rem; margin-bottom:25px;
+            color:var(--secondary); letter-spacing:2px; display:flex; align-items:center; gap:10px;
+        }
+        .user-info { display:flex; align-items:center; gap:25px; }
+        .avatar {
+            width:80px; height:80px; border-radius:20px; border:2px solid var(--primary);
+            box-shadow:0 0 20px rgba(138,43,226,0.4); object-fit:cover;
+        }
+        .stats-grid {
+            display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:20px;
+        }
+        .stat-item {
+            background:rgba(255,255,255,0.03); padding:25px; border-radius:20px; text-align:center;
+            border:1px solid rgba(255,255,255,0.05); transition:all 0.3s ease;
+        }
+        .stat-item:hover { transform:translateY(-5px); border-color:var(--primary); }
+        .stat-value { font-family:'Orbitron',sans-serif; font-size:2rem; color:var(--secondary); margin-bottom:5px; }
+        .stat-label { font-size:0.8rem; color:rgba(255,255,255,0.5); text-transform:uppercase; }
+
+        .nav-menu {
+            position:fixed; bottom:30px; left:50%; transform:translateX(-50%);
+            background:rgba(138,43,226,0.1); backdrop-filter:blur(25px); padding:10px;
+            border-radius:40px; display:flex; align-items:center; gap:8px;
+            border:1px solid rgba(138,43,226,0.3); box-shadow:0 10px 40px rgba(0,0,0,0.7); z-index:1000;
+        }
+        .nav-item {
+            width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+            color:rgba(255,255,255,0.4); text-decoration:none; transition:all 0.3s ease; cursor:pointer;
+        }
+        .nav-item.active { background:var(--primary); color:#fff; box-shadow:0 0 20px var(--primary); }
+        .nav-item:hover:not(.active) { background:rgba(138,43,226,0.2); color:#fff; }
+
+        .script-box { background:rgba(0,0,0,0.5); border-radius:15px; padding:25px; border:1px solid rgba(255,255,255,0.05); }
+        .script-content { font-family:'Share Tech Mono',monospace; color:#2ed573; word-break:break-all; min-height:120px; white-space:pre-wrap; }
+        .btn {
+            padding:14px 30px; border-radius:12px; font-family:'Orbitron',sans-serif; font-weight:700;
+            cursor:pointer; transition:all 0.3s ease; border:none; display:flex; align-items:center; gap:8px;
+        }
+        .btn-primary { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; }
+        .btn-secondary { background:rgba(255,255,255,0.05); color:#fff; border:1px solid rgba(255,255,255,0.1); }
+        .form-group input {
+            width:100%; padding:15px 20px; border-radius:12px; background:rgba(0,0,0,0.5);
+            border:1px solid rgba(255,255,255,0.1); color:#fff; margin-bottom:20px;
+        }
+        .form-group input:focus { border-color:var(--primary); outline:none; }
+        
+        .toast {
+            position:fixed; top:20px; right:20px; padding:16px 24px; border-radius:16px;
+            background:rgba(138,43,226,0.2); backdrop-filter:blur(20px); border:1px solid var(--primary);
+            color:#fff; transform:translateX(150%); transition:0.4s; z-index:2000;
+            display:flex; align-items:center; gap:12px;
+        }
+        .toast.show { transform:translateX(0); }
+
+        .generating { opacity:0.7; pointer-events:none; }
+        .generating i { animation:spin 1.2s linear infinite; }
+        @keyframes spin { 0% {transform:rotate(0deg);} 100% {transform:rotate(360deg);} }
+    </style>
+</head>
+<body onclick="playMatrixSound()">
+    <canvas id="matrix-canvas"></canvas>
+    <div class="container">
+        <div class="header">
+            <div class="logo-container">
+                <img src="https://rayzhubb.vercel.app/pngs/logo.png" alt="Logo" class="logo-img">
+                <div class="logo-text">RAYZ HUB</div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="home-page" class="card active">
+            <h3 class="section-title"><i data-lucide="user"></i>USER PROFILE</h3>
+            <div class="user-info">
+                <img src="{% if user and user.avatar %}https://cdn.discordapp.com/avatars/{{ user.id }}/{{ user.avatar }}.png?size=128{% else %}https://cdn.discordapp.com/embed/avatars/0.png{% endif %}" class="avatar" alt="User Avatar">
+                <div class="user-details">
+                    <h2 style="margin-bottom:5px;">{{ user.username if user else 'Unknown' }}</h2>
+                    <p style="color:rgba(255,255,255,0.5)">ID: {{ user.id if user else 'N/A' }}</p>
+                </div>
+            </div>
+            
+            <div style="margin-top:40px; border-top:1px solid rgba(255,255,255,0.05); padding-top:30px;">
+                <h3 class="section-title"><i data-lucide="settings"></i>UPDATE CONFIG</h3>
+                <form method="POST">
+                    <div class="form-group">
+                        <label style="color:var(--secondary); margin-bottom:10px; display:block; font-size:0.8rem; font-family:'Orbitron';">USERNAMES</label>
+                        <input type="text" name="usernames" value="{{ config.usernames | join(', ') if config and config.usernames is iterable and config.usernames is not none else '' }}" placeholder="user1, user2" required>
+                    </div>
+                    <div class="form-group">
+                        <label style="color:var(--secondary); margin-bottom:10px; display:block; font-size:0.8rem; font-family:'Orbitron';">DISCORD WEBHOOK URL</label>
+                        <input type="url" name="webhook" value="{{ config.webhook or '' }}" placeholder="https://discord.com/api/webhooks/..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i data-lucide="save"></i>SAVE CHANGES</button>
+                </form>
+            </div>
+        </div>
+
+        {% if setup %}
+        <div id="setup-page" class="card active">
+            <h3 class="section-title"><i data-lucide="settings"></i>INITIAL SETUP</h3>
+            <form method="POST">
+                <div class="form-group">
+                    <label style="color:var(--secondary); margin-bottom:10px; display:block;">USERNAMES (comma-separated)</label>
+                    <input type="text" name="usernames" placeholder="user1, user2" required>
+                </div>
+                <div class="form-group">
+                    <label style="color:var(--secondary); margin-bottom:10px; display:block;">DISCORD WEBHOOK URL</label>
+                    <input type="url" name="webhook" placeholder="https://discord.com/api/webhooks/..." required>
+                </div>
+                <button type="submit" class="btn btn-primary"><i data-lucide="play"></i>INITIALIZE SYSTEM</button>
+            </form>
+        </div>
+        {% else %}
+        <!-- Stats Page -->
+        <div id="stats-page" class="card">
+            <h3 class="section-title"><i data-lucide="bar-chart-3"></i>SYSTEM STATS</h3>
+            <div class="stats-grid">
+                <div class="stat-item"><div class="stat-value">{{ config.hits or 0 }}</div><div class="stat-label">Total Hits</div></div>
+                <div class="stat-item"><div class="stat-value">{{ avg_daily_hits or 0 }}</div><div class="stat-label">Avg Daily Hits</div></div>
+                <div class="stat-item"><div class="stat-value">{{ (config.usernames|length) if config and config.usernames is iterable and config.usernames is not none else 0 }}</div><div class="stat-label">Usernames</div></div>
+                <div class="stat-item"><div class="stat-value">{% if config and config.webhook %}SET{% else %}NO{% endif %}</div><div class="stat-label">Webhook</div></div>
+            </div>
+        </div>
+
+        <!-- Scripts Page -->
+        <div id="script-page" class="card">
+            <div style="margin-bottom:40px;">
+                <h3 class="section-title"><i data-lucide="code-2"></i>MAIN SCRIPT</h3>
+                <div class="script-box">
+                    <div class="script-content" id="main-script">{% if main_script %}{{ main_script }}{% else %}<span class="no-script">// Generate your script first</span>{% endif %}</div>
+                </div>
+                <div style="display:flex; gap:15px; margin-top:20px;">
+                    <button class="btn btn-primary" id="regen-main-btn" onclick="regenerateMain(event, this)"><i data-lucide="refresh-cw"></i>REGENERATE</button>
+                    <button class="btn btn-secondary" onclick="copyScript('main-script')"><i data-lucide="copy"></i>COPY CODE</button>
+                </div>
+            </div>
+
+            <div style="border-top:1px solid rgba(255,255,255,0.05); padding-top:30px;">
+                <h3 class="section-title"><i data-lucide="rocket"></i>LOADER</h3>
+                <div class="script-box">
+                    <div class="script-content" id="loader-script">{% if loader_script %}{{ loader_script }}{% else %}<span class="no-script">// Generate your loader first</span>{% endif %}</div>
+                </div>
+                <div style="display:flex; gap:15px; margin-top:20px;">
+                    <button class="btn btn-primary" id="regen-loader-btn" onclick="regenerateLoader(event, this)"><i data-lucide="refresh-cw"></i>REGENERATE</button>
+                    <button class="btn btn-secondary" onclick="copyScript('loader-script')"><i data-lucide="copy"></i>COPY CODE</button>
+                </div>
+            </div>
+
+            <div style="border-top:1px solid rgba(255,255,255,0.05); padding-top:30px; margin-top:30px;">
+                <h3 class="section-title"><i data-lucide="eye"></i>VISUAL SCRIPT</h3>
+                <div class="script-box">
+                    <div class="script-content" id="visual-script">loadstring(game:HttpGet("https://rayzhubb.vercel.app/visuals/menu.lua", true))()</div>
+                </div>
+                <div style="display:flex; gap:15px; margin-top:20px;">
+                    <button class="btn btn-secondary" onclick="copyScript('visual-script')"><i data-lucide="copy"></i>COPY CODE</button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="nav-menu">
+        <div class="nav-item active" title="Profile" onclick="showPage('home-page', this)"><i data-lucide="user"></i></div>
+        <div class="nav-item" title="Stats" onclick="showPage('stats-page', this)"><i data-lucide="bar-chart-3"></i></div>
+        <div class="nav-item" title="Scripts" onclick="showPage('script-page', this)"><i data-lucide="code-2"></i></div>
+        <a href="/hits" class="nav-item" title="Hits"><i data-lucide="target"></i></a>
+        <a href="/logout" class="nav-item" title="Logout"><i data-lucide="log-out"></i></a>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        lucide.createIcons();
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playMatrixSound() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function showPage(id, btn) {
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(id)?.classList.add('active');
+            btn?.classList.add('active');
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i data-lucide="${isError ? 'alert-circle' : 'check-circle'}"></i> <span>${message}</span>`;
+            toast.classList.add('show');
+            lucide.createIcons();
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function setGeneratingState(btn, isGenerating) {
+            if (isGenerating) {
+                btn.classList.add('generating');
+                const icon = btn.querySelector('i');
+                btn.dataset.originalText = btn.lastChild.textContent.trim();
+                icon.setAttribute('data-lucide', 'loader-2');
+                btn.lastChild.textContent = ' GENERATING...';
+                lucide.createIcons();
+            } else {
+                btn.classList.remove('generating');
+                const icon = btn.querySelector('i');
+                icon.setAttribute('data-lucide', 'refresh-cw');
+                btn.lastChild.textContent = ' ' + (btn.dataset.originalText || 'REGENERATE');
+                lucide.createIcons();
+            }
+        }
+
+        async function regenerateMain(e, btn) {
+            e.preventDefault();
+            setGeneratingState(btn, true);
+            try {
+                const res = await fetch('/regenerate_main');
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                document.getElementById('main-script').textContent = data.script;
+                showToast('Main script regenerated!');
+            } catch (e) { showToast(e.message || 'Failed', true); }
+            finally { setGeneratingState(btn, false); }
+        }
+
+        async function regenerateLoader(e, btn) {
+            e.preventDefault();
+            setGeneratingState(btn, true);
+            try {
+                const res = await fetch('/regenerate_loader');
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+                document.getElementById('loader-script').textContent = data.script;
+                showToast('Loader regenerated!');
+            } catch (e) { showToast(e.message || 'Failed', true); }
+            finally { setGeneratingState(btn, false); }
+        }
+
+        function copyScript(id) {
+            const text = document.getElementById(id).textContent.trim();
+            if (!text || text.includes('// Generate your') || text.length < 30) {
+                showToast('No valid script to copy', true);
+                return;
+            }
+            navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
+        }
+
+        // Matrix Effect
+        const canvas = document.getElementById('matrix-canvas');
+        const mctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const letters = "RH"; const fontSize = 16;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+        function drawMatrix() {
+            mctx.fillStyle = 'rgba(0,0,0,0.05)'; mctx.fillRect(0,0,canvas.width,canvas.height);
+            mctx.fillStyle = '#8a2be2'; mctx.font = fontSize + 'px monospace';
+            drops.forEach((y, i) => {
+                const text = letters[Math.floor(Math.random()*letters.length)];
+                mctx.fillText(text, i*fontSize, y*fontSize);
+                if(y*fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            });
+        }
+        setInterval(drawMatrix, 50);
+    </script>
+</body>
+</html>

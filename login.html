@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAYZ HUB - Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #0a0a0f;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.4;
+        }
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            animation: float 8s ease-in-out infinite;
+            z-index: 1;
+        }
+        .glow-orb.purple {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.4) 0%, transparent 70%);
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+        .glow-orb.blue {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(88, 101, 242, 0.3) 0%, transparent 70%);
+            bottom: -50px;
+            left: -50px;
+            animation-delay: -4s;
+        }
+        .glow-orb.pink {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(199, 21, 133, 0.3) 0%, transparent 70%);
+            top: 50%;
+            left: 50%;
+            animation-delay: -2s;
+        }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.1); }
+            50% { transform: translate(-20px, 20px) scale(0.9); }
+            75% { transform: translate(20px, 10px) scale(1.05); }
+        }
+        .login-container {
+            position: relative;
+            z-index: 10;
+            background: rgba(10, 10, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 60px 50px;
+            text-align: center;
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            box-shadow: 
+                0 0 60px rgba(138, 43, 226, 0.2),
+                0 0 100px rgba(88, 101, 242, 0.1),
+                inset 0 0 60px rgba(138, 43, 226, 0.05);
+            animation: containerGlow 3s ease-in-out infinite alternate;
+        }
+        @keyframes containerGlow {
+            0% { box-shadow: 0 0 60px rgba(138, 43, 226, 0.2), 0 0 100px rgba(88, 101, 242, 0.1), inset 0 0 60px rgba(138, 43, 226, 0.05); }
+            100% { box-shadow: 0 0 80px rgba(138, 43, 226, 0.4), 0 0 120px rgba(88, 101, 242, 0.2), inset 0 0 80px rgba(138, 43, 226, 0.1); }
+        }
+        .cyber-line {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #8a2be2, transparent);
+            animation: lineGlow 2s ease-in-out infinite;
+        }
+        .cyber-line.top { top: 0; left: 10%; right: 10%; }
+        .cyber-line.bottom { bottom: 0; left: 10%; right: 10%; animation-delay: 1s; }
+        @keyframes lineGlow {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        .logo {
+            font-size: 3.5rem;
+            font-weight: 900;
+            letter-spacing: 8px;
+            background: linear-gradient(135deg, #8a2be2 0%, #da70d6 50%, #5865f2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            text-shadow: 0 0 40px rgba(138, 43, 226, 0.5);
+            animation: textPulse 2s ease-in-out infinite;
+            position: relative;
+        }
+        .logo::after {
+            content: 'RAYZ HUB';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #8a2be2 0%, #da70d6 50%, #5865f2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: blur(15px);
+            opacity: 0.5;
+            z-index: -1;
+        }
+        @keyframes textPulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+        .tagline {
+            color: #9a9aff;
+            margin-bottom: 40px;
+            font-size: 0.95rem;
+            font-family: 'Share Tech Mono', monospace;
+            letter-spacing: 2px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.3s;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .discord-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            background: linear-gradient(135deg, #5865F2 0%, #8a2be2 100%);
+            color: white;
+            padding: 18px 45px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(88, 101, 242, 0.4);
+            opacity: 0;
+            animation: fadeInUp 0.8s ease forwards 0.5s;
+        }
+        .discord-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .discord-btn:hover::before {
+            left: 100%;
+        }
+        .discord-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(138, 43, 226, 0.5), 0 0 30px rgba(88, 101, 242, 0.3);
+        }
+        .discord-btn:active {
+            transform: translateY(-2px) scale(0.98);
+        }
+        .discord-btn svg {
+            width: 26px;
+            height: 26px;
+            fill: white;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.5));
+        }
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #8a2be2;
+            border-radius: 50%;
+            animation: particleFloat 15s linear infinite;
+            opacity: 0;
+        }
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        .version-tag {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: rgba(138, 43, 226, 0.6);
+            letter-spacing: 3px;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix-canvas"></canvas>
+    
+    <div class="glow-orb purple"></div>
+    <div class="glow-orb blue"></div>
+    <div class="glow-orb pink"></div>
+    
+    <div class="particles" id="particles"></div>
+    
+    <div class="login-container">
+        <div class="cyber-line top"></div>
+        <div class="cyber-line bottom"></div>
+        <div class="logo">RAYZ HUB</div>
+        <p class="tagline">// ACCESS PORTAL //</p>
+        <a href="{{ auth_url }}" class="discord-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 127.14 96.36">
+                <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+            </svg>
+            CONNECT DISCORD
+        </a>
+        <div class="version-tag">v2.0.0</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let w = canvas.width = window.innerWidth;
+        let h = canvas.height = window.innerHeight;
+        
+        const chars = 'RAYZ01';
+        const fontSize = 16;
+        const spacing = 25;
+        let columns = Math.floor(w / spacing);
+        let drops = new Array(columns).fill(0).map(() => Math.random() * -50);
+        
+        ctx.font = fontSize + 'px monospace';
+        
+        let lastTime = 0;
+        const fps = 24;
+        const frameInterval = 1000 / fps;
+        
+        function drawMatrix(timestamp) {
+            requestAnimationFrame(drawMatrix);
+            
+            if (timestamp - lastTime < frameInterval) return;
+            lastTime = timestamp;
+            
+            ctx.fillStyle = 'rgba(10, 10, 15, 0.1)';
+            ctx.fillRect(0, 0, w, h);
+            
+            for (let i = 0; i < columns; i++) {
+                const char = chars[Math.floor(Math.random() * chars.length)];
+                const x = i * spacing;
+                const y = drops[i] * fontSize;
+                
+                ctx.fillStyle = '#da70d6';
+                ctx.fillText(char, x, y);
+                
+                ctx.fillStyle = 'rgba(138, 43, 226, 0.6)';
+                ctx.fillText(chars[Math.floor(Math.random() * chars.length)], x, y - fontSize);
+                
+                if (y > h && Math.random() > 0.95) {
+                    drops[i] = 0;
+                }
+                drops[i] += 0.5;
+            }
+        }
+        
+        requestAnimationFrame(drawMatrix);
+        
+        window.addEventListener('resize', () => {
+            w = canvas.width = window.innerWidth;
+            h = canvas.height = window.innerHeight;
+            columns = Math.floor(w / spacing);
+            drops = new Array(columns).fill(0).map(() => Math.random() * -50);
+        });
+        
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 15; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (12 + Math.random() * 8) + 's';
+            particlesContainer.appendChild(particle);
+        }
+    </script>
+</body>
+</html>
