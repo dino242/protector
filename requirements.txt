@@ -1,6 +1,0 @@
-
-flask
-supabase
-requests
-realtime
-postgrest
